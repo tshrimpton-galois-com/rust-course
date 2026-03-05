@@ -1,0 +1,5 @@
+[workspace]
+members = [
+  "session1",
+]
+resolver = "2"
