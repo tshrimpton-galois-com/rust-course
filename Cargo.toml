@@ -1,5 +1,5 @@
 [workspace]
 members = [
-  "session1",
+  "session1", "session2", "session4",
 ]
 resolver = "2"
