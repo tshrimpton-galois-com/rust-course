@@ -86,9 +86,12 @@ struct Ciphertext(u8);
 impl Key {
     // using nonce: Nonce consumes the input, so cannot be reused elsewhere; nonce: &Nonce would allow reuse
     // fn encrypt(self: &Key, nonce: Nonce, plaintext: u8) -> Ciphertext {
-    fn encrypt(&self, nonce: Nonce, plaintext: u8) -> Ciphertext {
+    fn encrypt(&self, nonce: Nonce, plaintext: u8) -> Result<Ciphertext, &'static str> {
         //self: type Key(u8), self.0: first field in type Key(u8)
-        Ciphertext(plaintext ^ self.0 ^ nonce.0)
+        if plaintext == 0 {
+            return Err("zero plaintext not allowed");
+        }
+        Ok(Ciphertext(plaintext ^ self.0 ^ nonce.0))
     }
 
     fn decrypt(&self, nonce: Nonce, ciphertext: Ciphertext) -> u8 {
@@ -108,19 +111,21 @@ impl Nonce {
     }
 }
 
-fn main() {
+fn main() -> Result<(), &'static str> {
     let key = Key(42);
     let nonce = Nonce::fresh(7);
     println!("nonce is: {}", nonce.0);
 
     let nonce1 = Nonce::new(7);
 
-    let c = key.encrypt(nonce1, 100);
+    let c = key.encrypt(nonce1, 0)?;
     println!("ciphertext: {}", c.0);
 
-    let nonce2 = Nonce(7);
+    let nonce2 = Nonce::new(7);
     let p = key.decrypt(nonce2, c);
     println!("plaintext: {}", p);
+
+    Ok(())
 }
 
 /* --------- MAIN ---------- */
